@@ -49,9 +49,9 @@ func (s *Server) Run() {
 		}
 
 		fmt.Printf("New connection from %s \n", conn.RemoteAddr().String())
-		client := NewClient(conn)
+		connection := NewCon(conn)
 		wg.Add(1)
-		go client.HandleRequest(&wg, ctx)
+		go connection.HandleRequest(&wg, ctx)
 	}
 
 	wg.Wait()

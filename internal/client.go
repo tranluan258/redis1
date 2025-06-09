@@ -10,15 +10,15 @@ import (
 	"time"
 )
 
-type Client struct {
+type Conn struct {
 	conn net.Conn
 }
 
-func NewClient(conn net.Conn) *Client {
-	return &Client{conn: conn}
+func NewCon(conn net.Conn) *Conn {
+	return &Conn{conn: conn}
 }
 
-func (c *Client) HandleRequest(wg *sync.WaitGroup, ctx context.Context) {
+func (c *Conn) HandleRequest(wg *sync.WaitGroup, ctx context.Context) {
 	defer wg.Done()
 	defer c.conn.Close()
 
@@ -48,7 +48,11 @@ func (c *Client) HandleRequest(wg *sync.WaitGroup, ctx context.Context) {
 			c.conn.Write([]byte("Invalid message format. Use 'command argument'.\n"))
 		}
 
-		command := NewCommand(splitMsg[0], splitMsg[1], splitMsg[2])
+		action := splitMsg[0]
+		key := splitMsg[1]
+		value := splitMsg[2]
+
+		command := NewCommand(action, key, value)
 		if !command.IsValid() {
 			c.conn.Write([]byte("Invalid command.\n"))
 		}
