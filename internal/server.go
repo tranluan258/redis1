@@ -49,9 +49,15 @@ func (s *Server) Run() {
 		}
 
 		fmt.Printf("New connection from %s \n", conn.RemoteAddr().String())
-		connection := NewCon(conn)
+		resp := NewResp(conn)
+
+		value, err := resp.Read(&wg, ctx)
+		if err != nil {
+			fmt.Printf("Error reading from connection: %v\n", err)
+		}
+		fmt.Println(value)
+		conn.Write([]byte("+OK\r\n"))
 		wg.Add(1)
-		go connection.HandleRequest(&wg, ctx)
 	}
 
 	wg.Wait()
