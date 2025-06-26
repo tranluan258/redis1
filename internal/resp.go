@@ -56,6 +56,7 @@ func (r *Resp) Read(wg *sync.WaitGroup, ctx context.Context) (value Value, err e
 
 func (r *Resp) readLine() (line []byte, n int, err error) {
 	for {
+		// Read a line from the reader until we hit \r\n
 		b, err := r.reader.ReadByte()
 		if err != nil {
 			return nil, 0, err
@@ -66,15 +67,13 @@ func (r *Resp) readLine() (line []byte, n int, err error) {
 			break
 		}
 	}
+	// Ensure the last two characters are \r\n
 	return line[:len(line)-2], n, nil
 }
 
 func (r *Resp) readBulk() (Value, error) {
-	v := Value{}
+	v := Value{typ: "bulk"}
 
-	v.typ = "bulk"
-
-	// Read the length of the bulk string
 	len, _, err := r.readInteger()
 	if err != nil {
 		return v, err
@@ -92,6 +91,7 @@ func (r *Resp) readBulk() (Value, error) {
 }
 
 func (r *Resp) readInteger() (x int, n int, err error) {
+	// Read the line containing the integer: // e.g., ":123\r\n"
 	line, n, err := r.readLine()
 	if err != nil {
 		return 0, 0, err
@@ -104,8 +104,7 @@ func (r *Resp) readInteger() (x int, n int, err error) {
 }
 
 func (r *Resp) readArray() (Value, error) {
-	v := Value{}
-	v.typ = "array"
+	v := Value{typ: "array"}
 
 	// Read the length of the array
 	len, _, err := r.readInteger()
@@ -122,7 +121,7 @@ func (r *Resp) readArray() (Value, error) {
 			return v, err
 		}
 
-		v.array = append(v.array, value)
+		v.array[i] = value
 	}
 	return v, nil
 }
