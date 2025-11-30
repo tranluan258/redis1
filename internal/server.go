@@ -51,13 +51,13 @@ func (s *Server) Run() {
 		fmt.Printf("New connection from %s \n", conn.RemoteAddr().String())
 		resp := NewResp(conn)
 
+		wg.Add(1)
 		value, err := resp.Read(&wg, ctx)
 		if err != nil {
 			fmt.Printf("Error reading from connection: %v\n", err)
 		}
 		fmt.Println(value)
 		conn.Write([]byte("+OK\r\n"))
-		wg.Add(1)
 	}
 
 	wg.Wait()

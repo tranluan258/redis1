@@ -114,7 +114,7 @@ func (r *Resp) readArray() (Value, error) {
 
 	v.array = make([]Value, len)
 
-	for i := 0; i < len; i++ {
+	for i := range len {
 		// Read each value in the array
 		value, err := r.Read(nil, context.Background())
 		if err != nil {
